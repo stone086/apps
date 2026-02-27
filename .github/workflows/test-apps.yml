@@ -1,0 +1,32 @@
+name: App Installation Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-installation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl wget
+
+      - name: Test Last Modified App
+        run: |
+          # 获取最后修改的 .conf 文件名（不含扩展名）
+          APP_NAME=$(git log -1 --name-only --format="" | grep '.conf$' | head -n 1 | sed 's/\.conf//')
+          if [ -z "$APP_NAME" ]; then
+            echo "No .conf file modified, skipping test."
+            exit 0
+          fi
+          echo "Testing installation for: $APP_NAME"
+          # 模拟执行老板的脚本（注意：这里可能需要交互，建议老板脚本支持静默安装参数）
+          # 这里先演示调用命令，实际可能需要根据脚本特性调整
+          # bash <(curl -sL kejilion.sh) app $APP_NAME
