@@ -16,41 +16,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl wget expect docker.io
 
-      - name: Run Test Suite
+      - name: Detect Changed App
+        id: detect
         run: |
-          # 获取变更的应用名
-          APP_NAME=$(git log -1 --name-only --format="" | grep '.conf$' | head -n 1 | sed 's/\.conf//' | xargs)
+          APP_NAME=$(git log -1 --name-only --format="" | grep '\.conf$' | head -n 1 | sed 's/\.conf//' | xargs)
+          echo "app=$APP_NAME" >> "$GITHUB_OUTPUT"
           if [ -z "$APP_NAME" ]; then
             echo "No .conf file modified, skipping test."
-            exit 0
+          else
+            echo "Testing App: $APP_NAME"
           fi
 
-          echo "Testing App: $APP_NAME"
-
-          cat <<'EXPECT_EOF' > test.exp
-          set timeout 900
-          set app [lindex $argv 0]
-          spawn bash -c "curl -sL kejilion.sh | bash -s app $app"
-
-          expect "请输入编号" { send "$app\r" }
-
-          # 依次执行: 4(状态), 1(安装), 3(更新), 2(卸载)
-          foreach op {4 1 3 2} {
-              expect "1. 安装应用" { send "$op\r" }
-              expect {
-                  "y/n" { send "y\r"; exp_continue }
-                  "请输入" { send "\r"; exp_continue }
-                  "按任意键" { send "\r"; exp_continue }
-                  "1. 安装应用" { }
-              }
-          }
-
-          expect "1. 安装应用" { send "0\r" }
-          expect "返回主菜单" { send "0\r" }
-          expect eof
-          EXPECT_EOF
-
-          # Remove leading whitespace from heredoc (YAML indentation artifact)
-          sed -i 's/^          //' test.exp
-          expect test.exp $APP_NAME
+      - name: Run Lifecycle Test
+        if: steps.detect.outputs.app != ''
+        run: |
+          chmod +x .github/test_app.exp
+          expect .github/test_app.exp "${{ steps.detect.outputs.app }}"
+          echo "=== Final container state ==="
           docker ps -a
