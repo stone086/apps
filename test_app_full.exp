@@ -1,6 +1,6 @@
-﻿#!/usr/bin/expect -f
+#!/usr/bin/expect -f
 
-# Standard Test Case for autoins.sh Apps
+# Standard Test Case for kejilion.sh Apps
 # Usage: ./test_app_full.exp <app_id>
 
 set app_id [lindex $argv 0]
@@ -16,37 +16,39 @@ send_user "\n>>> STARTING TEST FOR: $app_id <<<\n"
 spawn bash -c "curl -sL autoins.sh | bash -s app $app_id"
 
 expect {
-    # 濡傛灉杩樺湪涓昏彍鍗曪紙鎼滅储椤碉級
-    "璇疯緭鍏ョ紪鍙? {
+    # 如果还在主菜单（搜索页）
+    "请输入编号" {
         send "$app_id\r"
         exp_continue
     }
-    # 杩涘叆搴旂敤绠＄悊鑿滃崟鍚庯紝渚濇鎵ц鍚勪釜鐜妭
-    "1. 瀹夎搴旂敤" {
+    # 进入应用管理菜单后，依次执行各个环节
+    "1. 安装应用" {
         send_user "\n[STEP] In App Menu. Testing Status (4)...\n"
         send "4\r"
-        expect "鎸変换鎰忛敭缁х画" { send "\r" }
+        expect "按任意键继续" { send "\r" }
         
         send_user "\n[STEP] Testing Install/Update (1)...\n"
         send "1\r"
         expect {
             "y/n" { send "y\r"; exp_continue }
-            "纭" { send "y\r"; exp_continue }
-            "绔彛" { send "\r"; exp_continue }
-            "鎸変换鎰忛敭缁х画" { send "\r" }
+            "确认" { send "y\r"; exp_continue }
+            "端口" { send "\r"; exp_continue }
+            "按任意键继续" { send "\r" }
         }
         
         send_user "\n[STEP] Testing Uninstall (2)...\n"
         send "2\r"
         expect {
             "y/n" { send "y\r"; exp_continue }
-            "鎸変换鎰忛敭缁х画" { send "\r" }
+            "按任意键继续" { send "\r" }
         }
         
-        # 閫€鍑哄埌涓昏彍鍗?        expect "閫夋嫨:" { send "0\r" }
+        # 退出到主菜单
+        expect "选择:" { send "0\r" }
         exp_continue
     }
-    # 杩斿洖涓昏彍鍗曞悗閫€鍑?    "0.   杩斿洖涓昏彍鍗? {
+    # 返回主菜单后退出
+    "0.   返回主菜单" {
         send "0\r"
     }
     timeout {
@@ -57,5 +59,3 @@ expect {
 
 expect eof
 send_user "\n>>> SUCCESS: All lifecycle stages tested for $app_id <<<\n"
-
-
