@@ -1,39 +1,35 @@
-# 🚀 开发者应用入驻指南 (kejilion.sh)
+﻿# 馃殌 寮€鍙戣€呭簲鐢ㄥ叆椹绘寚鍗?(autoins.sh)
 
-欢迎为 `kejilion.sh` 贡献应用！通过在 `apps/` 目录下创建 `.conf` 配置文件，您的应用将自动集成到脚本的应用市场中。
-
+娆㈣繋涓?`autoins.sh` 璐＄尞搴旂敤锛侀€氳繃鍦?`apps/` 鐩綍涓嬪垱寤?`.conf` 閰嶇疆鏂囦欢锛屾偍鐨勫簲鐢ㄥ皢鑷姩闆嗘垚鍒拌剼鏈殑搴旂敤甯傚満涓€?
 ---
 
-## 1. 快速开始
-在 `apps/` 目录下创建一个以应用名命名的配置文件，例如：`myapp.conf`。
-
-## 2. 配置文件模板
-每个配置文件应严格遵循以下结构，确保变量和函数命名规范：
+## 1. 蹇€熷紑濮?鍦?`apps/` 鐩綍涓嬪垱寤轰竴涓互搴旂敤鍚嶅懡鍚嶇殑閰嶇疆鏂囦欢锛屼緥濡傦細`myapp.conf`銆?
+## 2. 閰嶇疆鏂囦欢妯℃澘
+姣忎釜閰嶇疆鏂囦欢搴斾弗鏍奸伒寰互涓嬬粨鏋勶紝纭繚鍙橀噺鍜屽嚱鏁板懡鍚嶈鑼冿細
 
 ```bash
-# --- 基础信息 / Basic Information ---
-local app_id="My File Name" # 和文件名一致，用于安装状态检测 / Same as the filename, used for installation status detection.
-local app_name="My App Name" # 应用显示名称
-local app_text="A brief description" # 一句话简介，说明应用用途
-local app_url="https://github.com/..." # 官网链接 / Official URL
-local docker_name="myapp_container" # 容器启动后的名称 / Container Name
-local docker_port="8080" # 默认访问端口 / Default Port
-local app_size="1" # 占用空间大小(GB) / Size in GB required (1-10)
+# --- 鍩虹淇℃伅 / Basic Information ---
+local app_id="My File Name" # 鍜屾枃浠跺悕涓€鑷达紝鐢ㄤ簬瀹夎鐘舵€佹娴?/ Same as the filename, used for installation status detection.
+local app_name="My App Name" # 搴旂敤鏄剧ず鍚嶇О
+local app_text="A brief description" # 涓€鍙ヨ瘽绠€浠嬶紝璇存槑搴旂敤鐢ㄩ€?local app_url="https://github.com/..." # 瀹樼綉閾炬帴 / Official URL
+local docker_name="myapp_container" # 瀹瑰櫒鍚姩鍚庣殑鍚嶇О / Container Name
+local docker_port="8080" # 榛樿璁块棶绔彛 / Default Port
+local app_size="1" # 鍗犵敤绌洪棿澶у皬(GB) / Size in GB required (1-10)
 
-# --- 核心逻辑 / Core Logic ---
+# --- 鏍稿績閫昏緫 / Core Logic ---
 docker_app_install() {
-    # 必须在 /home/docker/ 下创建应用目录 / Directory creation (Mandatory)
+    # 蹇呴』鍦?/home/docker/ 涓嬪垱寤哄簲鐢ㄧ洰褰?/ Directory creation (Mandatory)
     mkdir -p /home/docker/myapp && cd /home/docker/myapp
-    # 下载并配置 compose 文件 / Download compose file
-    # 务必使用 gh_proxy 变量 / Use gh_proxy for China access
+    # 涓嬭浇骞堕厤缃?compose 鏂囦欢 / Download compose file
+    # 鍔″繀浣跨敤 gh_proxy 鍙橀噺 / Use gh_proxy for China access
     curl -L -o docker-compose.yml "${gh_proxy}https://raw.githubusercontent.com/..."
-    # 端口处理（使用变量以便用户自定义）/ Port configuration (Customizable)
+    # 绔彛澶勭悊锛堜娇鐢ㄥ彉閲忎互渚跨敤鎴疯嚜瀹氫箟锛? Port configuration (Customizable)
     sed -i "s/8080:8080/${docker_port}:8080/g" docker-compose.yml
-    # 启动容器 / Start container
+    # 鍚姩瀹瑰櫒 / Start container
     docker compose up -d
-    echo "安装完成 / Install Complete"
+    echo "瀹夎瀹屾垚 / Install Complete"
 
-    # 显示访问地址的函数保留即可 / Show the function that is reserved
+    # 鏄剧ず璁块棶鍦板潃鐨勫嚱鏁颁繚鐣欏嵆鍙?/ Show the function that is reserved
     check_docker_app_ip
 }
 
@@ -41,69 +37,53 @@ docker_app_update() {
     cd /home/docker/myapp
     docker compose pull
     docker compose up -d
-    echo "更新完成 / Update Complete"
+    echo "鏇存柊瀹屾垚 / Update Complete"
 }
 
 docker_app_uninstall() {
     cd /home/docker/myapp
-    # 停止并删除镜像 / Stop and remove images
+    # 鍋滄骞跺垹闄ら暅鍍?/ Stop and remove images
     docker compose down --rmi all
-    # 彻底物理删除目录 / Clean up directory
+    # 褰诲簳鐗╃悊鍒犻櫎鐩綍 / Clean up directory
     rm -rf /home/docker/myapp
-    echo "卸载完成 / Uninstall Complete"
+    echo "鍗歌浇瀹屾垚 / Uninstall Complete"
 }
 
-# --- 注册 (必须包含) / Registration (Mandatory) ---
+# --- 娉ㄥ唽 (蹇呴』鍖呭惈) / Registration (Mandatory) ---
 docker_app_plus
 
 
 
 ```
 
-## 3. 强制规范与原则
+## 3. 寮哄埗瑙勮寖涓庡師鍒?
+### 馃搧 鐩綍璺緞瑙勮寖
+> **鏍稿績鍘熷垯锛氭暟鎹笉鍏ョ郴缁熺洏锛岀粺涓€褰掓。銆?*
 
-### 📁 目录路径规范
-> **核心原则：数据不入系统盘，统一归档。**
-
-* **【必须】**：所有持久化数据（Volume/Bind Mount）必须存储在 `/home/docker/[应用名]` 目录下。
-* **【禁止】**：严禁将数据存放在 `/root`、`/etc`、`/var/lib` 或其他非指定根目录。
-* **【理由】**：统一路径方便用户进行一键备份、整机迁移以及权限的统一管理。
-
-### 🔄 容器生命周期
-* **开机自启**：生成的 `docker-compose.yml` 中必须包含 `restart: always` 或 `restart: unless-stopped`。
-* **干净卸载**：`docker_app_uninstall` 函数必须执行闭环操作，包含：
-    * 停止并删除容器 (`docker compose down`)
-    * 删除对应的镜像 (`--rmi all`)
-    * **彻底物理删除** `/home/docker/[应用名]` 目录。
-
-### 🆔 变量与语法说明
-* **App ID**：当前版本已弱化 ID 概念，您可以省略或填入任意数值，系统目前主要以 `.conf` 文件名作为唯一识别依据。
-* **Local 关键字**：由于配置文件是在函数内部被 `source` 加载的，请务必保留 `local` 声明，这能有效防止变量污染脚本的全局环境。
-
-### 🌐 网络优化
-* **镜像加速**：下载 GitHub 资源（如 `.yml` 或 `脚本`）时，请务必在 URL 前加上 `${gh_proxy}` 变量，以确保国内服务器的访问成功率。
-
+* **銆愬繀椤汇€?*锛氭墍鏈夋寔涔呭寲鏁版嵁锛圴olume/Bind Mount锛夊繀椤诲瓨鍌ㄥ湪 `/home/docker/[搴旂敤鍚峕` 鐩綍涓嬨€?* **銆愮姝€?*锛氫弗绂佸皢鏁版嵁瀛樻斁鍦?`/root`銆乣/etc`銆乣/var/lib` 鎴栧叾浠栭潪鎸囧畾鏍圭洰褰曘€?* **銆愮悊鐢便€?*锛氱粺涓€璺緞鏂逛究鐢ㄦ埛杩涜涓€閿浠姐€佹暣鏈鸿縼绉讳互鍙婃潈闄愮殑缁熶竴绠＄悊銆?
+### 馃攧 瀹瑰櫒鐢熷懡鍛ㄦ湡
+* **寮€鏈鸿嚜鍚?*锛氱敓鎴愮殑 `docker-compose.yml` 涓繀椤诲寘鍚?`restart: always` 鎴?`restart: unless-stopped`銆?* **骞插噣鍗歌浇**锛歚docker_app_uninstall` 鍑芥暟蹇呴』鎵ц闂幆鎿嶄綔锛屽寘鍚細
+    * 鍋滄骞跺垹闄ゅ鍣?(`docker compose down`)
+    * 鍒犻櫎瀵瑰簲鐨勯暅鍍?(`--rmi all`)
+    * **褰诲簳鐗╃悊鍒犻櫎** `/home/docker/[搴旂敤鍚峕` 鐩綍銆?
+### 馃啍 鍙橀噺涓庤娉曡鏄?* **App ID**锛氬綋鍓嶇増鏈凡寮卞寲 ID 姒傚康锛屾偍鍙互鐪佺暐鎴栧～鍏ヤ换鎰忔暟鍊硷紝绯荤粺鐩墠涓昏浠?`.conf` 鏂囦欢鍚嶄綔涓哄敮涓€璇嗗埆渚濇嵁銆?* **Local 鍏抽敭瀛?*锛氱敱浜庨厤缃枃浠舵槸鍦ㄥ嚱鏁板唴閮ㄨ `source` 鍔犺浇鐨勶紝璇峰姟蹇呬繚鐣?`local` 澹版槑锛岃繖鑳芥湁鏁堥槻姝㈠彉閲忔薄鏌撹剼鏈殑鍏ㄥ眬鐜銆?
+### 馃寪 缃戠粶浼樺寲
+* **闀滃儚鍔犻€?*锛氫笅杞?GitHub 璧勬簮锛堝 `.yml` 鎴?`鑴氭湰`锛夋椂锛岃鍔″繀鍦?URL 鍓嶅姞涓?`${gh_proxy}` 鍙橀噺锛屼互纭繚鍥藉唴鏈嶅姟鍣ㄧ殑璁块棶鎴愬姛鐜囥€?
 
 ---
 
 
-## 4. 快捷启动与调用
-
-一旦您的 `.conf` 文件被合入仓库，该应用将自动进入 **“第三方应用入驻”** 模块。此外，开发者可以向用户提供专属的极简安装指令：
-
-#### 🚀 快捷安装指令模板：
-```bash
-bash <(curl -sL kejilion.sh) app [文件名]
+## 4. 蹇嵎鍚姩涓庤皟鐢?
+涓€鏃︽偍鐨?`.conf` 鏂囦欢琚悎鍏ヤ粨搴擄紝璇ュ簲鐢ㄥ皢鑷姩杩涘叆 **鈥滅涓夋柟搴旂敤鍏ラ┗鈥?* 妯″潡銆傛澶栵紝寮€鍙戣€呭彲浠ュ悜鐢ㄦ埛鎻愪緵涓撳睘鐨勬瀬绠€瀹夎鎸囦护锛?
+#### 馃殌 蹇嵎瀹夎鎸囦护妯℃澘锛?```bash
+bash <(curl -sL autoins.sh) app [鏂囦欢鍚峕
 ```
-示例：如果您的配置文件名为 myapp.conf，则调用指令为： bash <(curl -sL kejilion.sh) app myapp
+绀轰緥锛氬鏋滄偍鐨勯厤缃枃浠跺悕涓?myapp.conf锛屽垯璋冪敤鎸囦护涓猴細 bash <(curl -sL autoins.sh) app myapp
 
 
 ---
 
 
-## 5. 入驻流程
+## 5. 鍏ラ┗娴佺▼
 
-1.  **本地自测**：在自己的 VPS 上完整运行安装、更新、卸载流程，确保无报错。
-2.  **路径审计**：检查 `/home/docker/` 目录下是否正确生成了应用文件夹，且没有文件“溢出”到其他地方。
-3.  **提交申请**：将您的 `[应用名].conf` 文件通过 **Pull Request** 提交至本仓库的 `sh/apps/` 目录。
-4.  **审核发布**：维护者审核逻辑安全后，您的应用将正式上线 `kejilion.sh` 菜单。
+1.  **鏈湴鑷祴**锛氬湪鑷繁鐨?VPS 涓婂畬鏁磋繍琛屽畨瑁呫€佹洿鏂般€佸嵏杞芥祦绋嬶紝纭繚鏃犳姤閿欍€?2.  **璺緞瀹¤**锛氭鏌?`/home/docker/` 鐩綍涓嬫槸鍚︽纭敓鎴愪簡搴旂敤鏂囦欢澶癸紝涓旀病鏈夋枃浠垛€滄孩鍑衡€濆埌鍏朵粬鍦版柟銆?3.  **鎻愪氦鐢宠**锛氬皢鎮ㄧ殑 `[搴旂敤鍚峕.conf` 鏂囦欢閫氳繃 **Pull Request** 鎻愪氦鑷虫湰浠撳簱鐨?`sh/apps/` 鐩綍銆?4.  **瀹℃牳鍙戝竷**锛氱淮鎶よ€呭鏍搁€昏緫瀹夊叏鍚庯紝鎮ㄧ殑搴旂敤灏嗘寮忎笂绾?`autoins.sh` 鑿滃崟銆?
