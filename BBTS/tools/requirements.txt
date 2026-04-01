@@ -1,0 +1,5 @@
+numpy
+Pillow
+pypdfium2
+rapidocr_onnxruntime
+opencc-python-reimplemented

@@ -1,0 +1,78 @@
+name: trad-pdf-to-simp
+
+on:
+  workflow_dispatch:
+    inputs:
+      pdf_url:
+        description: "Public PDF URL"
+        required: true
+        type: string
+      dpi:
+        description: "Render DPI"
+        required: false
+        default: "300"
+        type: string
+      reading_order:
+        description: "Reading order: rtl_tb | ltr_tb | auto | ocr"
+        required: false
+        default: "rtl_tb"
+        type: string
+      start_page:
+        description: "Start page (1-based)"
+        required: false
+        default: "1"
+        type: string
+      end_page:
+        description: "End page (blank means all)"
+        required: false
+        default: ""
+        type: string
+      save_raw_per_page:
+        description: "Save raw OCR page files"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r BBTS/tools/requirements.txt
+
+      - name: Run OCR pipeline
+        shell: bash
+        run: |
+          CMD=(
+            python BBTS/tools/trad_pdf_to_simp.py
+            --input-url "${{ inputs.pdf_url }}"
+            --out-dir out
+            --dpi "${{ inputs.dpi }}"
+            --reading-order "${{ inputs.reading_order }}"
+            --start-page "${{ inputs.start_page }}"
+          )
+          if [ -n "${{ inputs.end_page }}" ]; then
+            CMD+=( --end-page "${{ inputs.end_page }}" )
+          fi
+          if [ "${{ inputs.save_raw_per_page }}" = "true" ]; then
+            CMD+=( --save-raw-per-page )
+          fi
+          "${CMD[@]}"
+
+      - name: Upload outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: trad-pdf-to-simp-output
+          path: out/
+          if-no-files-found: error
+
