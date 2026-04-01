@@ -42,3 +42,12 @@ After run completes, download artifact:
 
 - `trad-pdf-to-simp-output`
 
+## Web upload entry
+
+Use `BBTS/upload.html` as a browser entry point.
+
+What it does:
+
+1. Uploads your local PDF to `BBTS/uploads/...` in the repo
+2. Triggers `.github/workflows/trad-pdf-to-simp-from-repo.yml`
+3. You download results from Actions artifact `trad-pdf-to-simp-output`
